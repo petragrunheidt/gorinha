@@ -1,0 +1,66 @@
+version: '3.9'
+
+services:
+  api1: &api
+    # build: .
+    image: golang:latest
+    container_name: api1
+    volumes:
+      - .:/usr/src/gorinha
+    ports:
+      - 8081:8080
+    depends_on:
+      - rinha-db
+    working_dir: /usr/src/gorinha
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '0.3'
+    #       memory: '150MB'
+    command: go run main.go
+
+  api2: 
+    <<: *api
+    ports:
+      - 8082:8080
+    container_name: api2
+
+  rinha-db:
+    image: postgres
+    container_name: rinha-db
+    environment:
+      POSTGRES_USER: rinha-db
+      POSTGRES_PASSWORD: rinha-db
+      POSTGRES_DB: rinha-db
+    ports:
+      - 5432:5432
+    volumes:
+      - ./config/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./config/postgresql.conf:/etc/postgresql/postgresql.conf
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.7'
+          memory: '200MB'
+
+  nginx:
+    image: nginx 
+    container_name: nginx
+    volumes:
+      - ./config/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - 9999:9999
+    depends_on:
+      - api1
+      - api2
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: '50MB'
+
+networks:
+  default:
+    driver: bridge
+    name: rinha-nginx-2024q1
