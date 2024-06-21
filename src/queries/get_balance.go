@@ -12,7 +12,7 @@ type Balance struct {
 	Amount      float64 `json:"amount"`
 }
 
-func GetBalance(id string) ([]Balance, error) {
+func GetBalance(id string) (Balance, error) {
 	sqlStatement := `
 	SELECT a.limit_amount, b.amount 
 	FROM accounts AS a 
@@ -26,17 +26,15 @@ func GetBalance(id string) ([]Balance, error) {
 	}
 	defer rows.Close()
 
-	var balances []Balance
+	var balance Balance
 
 	for rows.Next() {
-		var balance Balance
 
 		err := rows.Scan(&balance.LimitAmount, &balance.Amount)
 		log.Printf("added balance: %v, %v", balance.LimitAmount, balance.Amount)
 		if err != nil {
-			return nil, fmt.Errorf("error scanning row: %v", err)
+			log.Printf("error scanning row: %v", err)
 		}
-		balances = append(balances, balance)
 	}
 
 	if err := rows.Err(); err != nil {
@@ -45,5 +43,5 @@ func GetBalance(id string) ([]Balance, error) {
 
 	defer db.DBPool.Close()
 	fmt.Println("Database connection pool closed")
-	return balances, err
+	return balance, err
 }
