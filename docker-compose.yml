@@ -7,6 +7,7 @@ services:
     container_name: api1
     volumes:
       - .:/usr/src/gorinha
+      - /go/pkg/mod:/go/pkg/mod
     ports:
       - 8081:8080
     depends_on:
@@ -17,7 +18,7 @@ services:
     #     limits:
     #       cpus: '0.3'
     #       memory: '150MB'
-    command: go run main.go
+    command: go run src/main.go
 
   api2: 
     <<: *api

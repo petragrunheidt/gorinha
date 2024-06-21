@@ -1,0 +1,6 @@
+db:
+  user: rinha-db
+  password: rinha-db
+  name: rinha-db
+  host: rinha-db
+  port: 5432

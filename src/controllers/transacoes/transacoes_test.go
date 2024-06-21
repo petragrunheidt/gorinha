@@ -1,4 +1,4 @@
-package main
+package transacoes
 
 import (
 	"net/http"
@@ -8,10 +8,12 @@ import (
 
 func TestGET(t *testing.T) {
 	t.Run("returns OK", func(t *testing.T) {
+		route := Get
+
 		request, _ := http.NewRequest(http.MethodGet, "/ping", nil)
 		response := httptest.NewRecorder()
 
-		RunServer(response, request)
+		routes.ServeHTTP(response, request)
 
 		result := response.Result()
     defer result.Body.Close()

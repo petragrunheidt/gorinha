@@ -1,7 +1,7 @@
 package main
 
 import (
-	"gorinha/routes"
+	"gorinha/src/routes"
 )
 
 func main() {
