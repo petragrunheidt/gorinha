@@ -1,6 +1,17 @@
-db:
+defaults: &defaults
   user: rinha-db
   password: rinha-db
-  name: rinha-db
   host: rinha-db
   port: 5432
+
+dev:
+  <<: *defaults
+  name: rinha-db
+
+test:
+  <<: *defaults
+  name: test-rinha-db
+
+prod:
+  <<: *defaults
+  name: prod-rinha-db

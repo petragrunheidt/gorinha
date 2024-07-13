@@ -3,36 +3,56 @@ package db
 import (
 	"fmt"
 	"os"
+	"path/filepath"
+	"runtime"
 
+	"github.com/joho/godotenv"
 	"gopkg.in/yaml.v2"
 )
 
-type Config struct {
-	DB struct {
-		User     string `yaml:"user"`
-		Password string `yaml:"password"`
-		Name     string `yaml:"name"`
-		Host     string `yaml:"host"`
-		Port     int    `yaml:"port"`
-	} `yaml:"db"`
+type DBConfig struct {
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
+	Name     string `yaml:"name"`
+	Host     string `yaml:"host"`
+	Port     int    `yaml:"port"`
 }
 
-func LoadConfig(filename string) (*Config, error) {
-	data, err := os.ReadFile(filename)
+func LoadConfig(filename string) (*DBConfig, error) {
+	env := currentEnv()
+	
+	yamlFile, err := os.ReadFile(filename)
 	if err != nil {
-		return nil, fmt.Errorf("error reading config file: %w", err)
+		return nil, fmt.Errorf("error reading YAML file: %w", err)
 	}
 
-	return ParseYAML(data)
-}
+	var config map[string]DBConfig
 
-func ParseYAML(yamlData []byte) (*Config, error) {
-	var config Config
-	err := yaml.Unmarshal(yamlData, &config)
+	err = yaml.Unmarshal(yamlFile, &config)
 	if err != nil {
-			return nil, fmt.Errorf("error unmarshaling config file: %w", err)
+		return nil, fmt.Errorf("error unmarshaling YAML: %w", err)
 	}
 
-	return &config, nil
+	dbConfig, ok := config[env]
+	if !ok {
+		return nil, fmt.Errorf("configuration for environment %s not found", env)
+	}
+
+	return &dbConfig, nil
 }
 
+func currentEnv() string{
+	_, currentFile, _, ok := runtime.Caller(0)
+	if !ok {
+		fmt.Errorf("error determining current file path")
+	}
+
+	configPath := filepath.Join(filepath.Dir(currentFile), "../../.env")
+	err := godotenv.Load(configPath)
+
+	if err != nil {
+		fmt.Errorf("error loading .env file: %w", err)
+	}
+
+	return os.Getenv("ENV")
+}

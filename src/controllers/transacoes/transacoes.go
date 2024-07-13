@@ -8,7 +8,7 @@ import (
 )
 
 func Get(c *gin.Context) {
-	balances, _ := queries.GetBalance("1")
+	balances, _ := queries.GetBalance(1)
 	
 	c.JSON(http.StatusOK, gin.H{
 		"data": balances,

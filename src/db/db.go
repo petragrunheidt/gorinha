@@ -1,37 +1,75 @@
 package db
 
 import (
-	"context"
 	"fmt"
 	"log"
-	
-	"github.com/jackc/pgx/v5/pgxpool"
+	"path/filepath"
+	"runtime"
+
+	"gorinha/src/models"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+	"gorm.io/driver/postgres"
 )
 
-var DBPool *pgxpool.Pool
+var Gorm *gorm.DB
 
 func Init() {
-	config, err := LoadConfig("src/db/config.yml")
-
-	if err != nil {
-		log.Fatalf("Error loading config file: %v", err)
+	_, currentFile, _, ok := runtime.Caller(0)
+	if !ok {
+			log.Fatalf("error determining current file path")
 	}
 
-	dbURL := fmt.Sprintf("postgres://%s:%s@%s:%d/%s",
-		config.DB.User, config.DB.Password,
-		config.DB.Host, config.DB.Port,
-		config.DB.Name)
+	configPath := filepath.Join(filepath.Dir(currentFile), "./config.yml")
 
-	DBPool, err = pgxpool.New(context.Background(), dbURL)
-
+	config, err := LoadConfig(configPath)
 	if err != nil {
-		log.Fatalf("Unable to connect to database: %v\n", err)
+			log.Fatalf("Error loading config file: %v", err)
 	}
 
-	fmt.Println("Database connection pool initialized")
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable",
+			config.Host, config.User, config.Password, config.Name, config.Port)
+
+	Gorm, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
+	if err != nil {
+			log.Fatalf("Unable to connect to database: %v\n", err)
+	}
+
+	fmt.Println("Database connection initialized")
 }
 
 func Close() {
-	DBPool.Close()
-	fmt.Println("Database connection pool closed")
+	sqlDB, err := Gorm.DB()
+	if err != nil {
+			log.Fatalf("Error getting SQL DB: %v", err)
+	}
+	sqlDB.Close()
+	fmt.Println("Database connection closed")
 }
+
+func Migrate() {
+	err := Gorm.AutoMigrate(
+		&models.Account{},
+		&models.Balance{},
+		&models.Transaction{},
+	)
+	if err != nil {
+		log.Fatalf("Failed to migrate database: %v", err)
+	}
+
+	fmt.Println("Database migration completed")
+}
+
+func Drop() {
+	// Get all table names
+	var tables []string
+	Gorm.Raw("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'").Scan(&tables)
+
+	// Drop each table
+	for _, table := range tables {
+		Gorm.Migrator().DropTable(table)
+	}
+}
+

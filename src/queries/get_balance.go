@@ -1,10 +1,11 @@
 package queries
 
 import (
-	"context"
 	"fmt"
-	"gorinha/src/db"
 	"log"
+
+	"gorinha/src/db"
+	"gorinha/src/models"
 )
 
 type Balance struct {
@@ -12,36 +13,17 @@ type Balance struct {
 	Amount      float64 `json:"amount"`
 }
 
-func GetBalance(id string) (Balance, error) {
-	sqlStatement := `
-	SELECT a.limit_amount, b.amount 
-	FROM accounts AS a 
-	JOIN balances AS b ON a.id = b.account_id 
-	WHERE a.id = $1
-	`
-	log.Printf("\n\n\n\n\n\nstarting query with id: %s", id)
-	rows, err := db.DBPool.Query(context.Background(), sqlStatement, id)
-	if err != nil {
-		log.Fatalf("Error querying database: %v\n", err)
-	}
-	defer rows.Close()
-
-	var balance Balance
-
-	for rows.Next() {
-
-		err := rows.Scan(&balance.LimitAmount, &balance.Amount)
-		log.Printf("added balance: %v, %v", balance.LimitAmount, balance.Amount)
-		if err != nil {
-			log.Printf("error scanning row: %v", err)
-		}
+func GetBalance(id uint) (Balance, error) {
+	var account models.Account
+	if err := db.Gorm.Preload("Balances").First(&account, id).Error; err != nil {
+			return Balance{}, err
 	}
 
-	if err := rows.Err(); err != nil {
-		log.Fatalf("Error iterating rows: %v\n", err)
+	if len(account.Balances) > 0 {
+			balance := account.Balances[0]
+			log.Printf("added balance: %v, %v", account.LimitAmount, balance.Amount)
+			return Balance{LimitAmount: account.LimitAmount, Amount: balance.Amount}, nil
 	}
 
-	defer db.DBPool.Close()
-	fmt.Println("Database connection pool closed")
-	return balance, err
+	return Balance{}, fmt.Errorf("No balances found for account ID %d", id)
 }
