@@ -13,7 +13,7 @@ type Balance struct {
 	Amount      float64 `json:"amount"`
 }
 
-func GetBalance(id uint) (Balance, error) {
+func GetBalance(id string) (Balance, error) {
 	var account models.Account
 	if err := db.Gorm.Preload("Balances").First(&account, id).Error; err != nil {
 			return Balance{}, err
@@ -25,5 +25,5 @@ func GetBalance(id uint) (Balance, error) {
 			return Balance{LimitAmount: account.LimitAmount, Amount: balance.Amount}, nil
 	}
 
-	return Balance{}, fmt.Errorf("No balances found for account ID %d", id)
+	return Balance{}, fmt.Errorf("no balances found for account ID %s", id)
 }

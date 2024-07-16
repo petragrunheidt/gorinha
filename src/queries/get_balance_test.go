@@ -12,7 +12,7 @@ func TestGetBalance(t *testing.T) {
 	helpers.InitTestDB()
 	createAccount()
 
-	balance, err := GetBalance(1)
+	balance, err := GetBalance("1")
 	if err != nil {
 		t.Fatalf("Failed to get balance: %v", err)
 	}

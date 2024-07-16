@@ -14,9 +14,9 @@ func TestGET(t *testing.T) {
 		helpers.InitTestDB()
 
 		router := gin.Default()
-		router.GET("/balances", Get)
+		router.GET("/balances/1", Get)
 
-		req, _ := http.NewRequest(http.MethodGet, "/balances", nil)
+		req, _ := http.NewRequest(http.MethodGet, "/balances/1", nil)
 
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
