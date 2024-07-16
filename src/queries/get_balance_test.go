@@ -5,7 +5,7 @@ import (
 
 	"gorinha/src/db"
 	"gorinha/src/models"
-	"gorinha/src/test_helpers"
+	"gorinha/src/helpers"
 )
 
 func TestGetBalance(t *testing.T) {

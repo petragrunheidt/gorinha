@@ -4,25 +4,25 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	
+	"gorinha/src/helpers"
+	"github.com/gin-gonic/gin"
 )
 
 func TestGET(t *testing.T) {
 	t.Run("returns OK", func(t *testing.T) {
-		route := Get
+		helpers.InitTestDB()
 
-		request, _ := http.NewRequest(http.MethodGet, "/ping", nil)
-		response := httptest.NewRecorder()
+		router := gin.Default()
+		router.GET("/balances", Get)
 
-		routes.ServeHTTP(response, request)
+		req, _ := http.NewRequest(http.MethodGet, "/balances", nil)
 
-		result := response.Result()
-    defer result.Body.Close()
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
 
-    got := result.StatusCode
-    want := http.StatusOK
-
-		if got != want {
-			t.Errorf("got status %d, want %d", got, want)
-	}
+		if w.Code != http.StatusOK {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+		}
 	})
 }

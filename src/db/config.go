@@ -3,10 +3,8 @@ package db
 import (
 	"fmt"
 	"os"
-	"path/filepath"
-	"runtime"
 
-	"github.com/joho/godotenv"
+	"github.com/gin-gonic/gin"
 	"gopkg.in/yaml.v2"
 )
 
@@ -19,7 +17,7 @@ type DBConfig struct {
 }
 
 func LoadConfig(filename string) (*DBConfig, error) {
-	env := currentEnv()
+	env := gin.Mode()
 	
 	yamlFile, err := os.ReadFile(filename)
 	if err != nil {
@@ -39,20 +37,4 @@ func LoadConfig(filename string) (*DBConfig, error) {
 	}
 
 	return &dbConfig, nil
-}
-
-func currentEnv() string{
-	_, currentFile, _, ok := runtime.Caller(0)
-	if !ok {
-		fmt.Errorf("error determining current file path")
-	}
-
-	configPath := filepath.Join(filepath.Dir(currentFile), "../../.env")
-	err := godotenv.Load(configPath)
-
-	if err != nil {
-		fmt.Errorf("error loading .env file: %w", err)
-	}
-
-	return os.Getenv("ENV")
 }
