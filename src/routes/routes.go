@@ -8,6 +8,6 @@ import (
 
 func SetupRoutes() *gin.Engine {
 	r := gin.Default()
-	r.GET("/transacoes/:id", transacoes.Get)
+	r.POST("/clientes/:id/transacoes", transacoes.HandleTransaction)
 	return r
 }
