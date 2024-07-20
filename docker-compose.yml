@@ -5,6 +5,8 @@ services:
     # build: .
     image: golang:latest
     container_name: api1
+    environment:
+      - LEADER=true
     volumes:
       - .:/usr/src/gorinha
       - /go/pkg/mod:/go/pkg/mod
@@ -32,11 +34,10 @@ services:
     environment:
       POSTGRES_USER: rinha-db
       POSTGRES_PASSWORD: rinha-db
-      POSTGRES_DB: rinha-db
     ports:
       - 5432:5432
     volumes:
-      - ./config/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./config/init.sh:/docker-entrypoint-initdb.d/init.sh
       - ./config/postgresql.conf:/etc/postgresql/postgresql.conf
     command: postgres -c config_file=/etc/postgresql/postgresql.conf
     deploy:

@@ -3,13 +3,16 @@ package db
 import (
 	"fmt"
 	"log"
+	"os"
 	"path/filepath"
 	"runtime"
 
 	"gorinha/src/models"
+
+	"github.com/gin-gonic/gin"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"gorm.io/driver/postgres"
 )
 
 var Gorm *gorm.DB
@@ -38,6 +41,23 @@ func Init() {
 	}
 
 	fmt.Println("Database connection initialized")
+	
+	runSeeds()
+}
+
+func runSeeds() {
+	isLeader := os.Getenv("LEADER") == "true"
+	isDebug := gin.Mode() == "debug"
+	
+	if isLeader && isDebug {
+		Drop()
+		Migrate()
+		if err := seedData(Gorm); err != nil {
+			fmt.Printf("Error seeding data: %v\n", err)
+		} else {
+			fmt.Println("Development database populated")
+		}
+	}
 }
 
 func Close() {
@@ -73,3 +93,34 @@ func Drop() {
 	}
 }
 
+func seedData(db *gorm.DB) error {
+	// Seed accounts
+	accounts := []models.Account{
+		{Name: "o barato sai caro", LimitAmount: 1000 * 100},
+		{Name: "zan corp ltda", LimitAmount: 800 * 100},
+		{Name: "les cruders", LimitAmount: 10000 * 100},
+		{Name: "padaria joia de cocaia", LimitAmount: 100000 * 100},
+		{Name: "kid mais", LimitAmount: 5000 * 100},
+	}
+
+	for _, account := range accounts {
+		if err := db.Create(&account).Error; err != nil {
+			return err
+		}
+	}
+
+	// Seed balances
+	var accountIDs []uint
+	db.Model(&models.Account{}).Pluck("id", &accountIDs)
+
+	balances := make([]models.Balance, len(accountIDs))
+	for i, id := range accountIDs {
+		balances[i] = models.Balance{AccountID: id, Amount: 0}
+	}
+
+	if err := db.Create(&balances).Error; err != nil {
+		return err
+	}
+
+	return nil
+}

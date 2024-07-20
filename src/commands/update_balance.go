@@ -14,7 +14,8 @@ func UpdateBalance(id string, amount int, transactionType string) error {
 
 	switch transactionType {
 	case "c":
-		err = db.Gorm.Model(&models.Account{}).
+		err = db.Gorm.
+		Model(&models.Account{}).
 		Where("id = ?", id).
 		Update("limit_amount", gorm.Expr("limit_amount - ?", amount)).
 		Error

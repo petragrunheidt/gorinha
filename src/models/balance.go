@@ -7,5 +7,5 @@ import (
 type Balance struct {
 		gorm.Model
     AccountID uint
-    Amount    float64
+    Amount    float64 `gorm:"not null;check:amount >= 0"`
 }
