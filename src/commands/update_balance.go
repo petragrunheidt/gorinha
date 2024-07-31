@@ -2,6 +2,9 @@ package commands
 
 import (
 	"fmt"
+	"log"
+	"strconv"
+	"time"
 
 	"gorinha/src/db"
 	"gorinha/src/models"
@@ -28,5 +31,34 @@ func UpdateBalance(id string, amount int, transactionType string) error {
 	default:
 		return fmt.Errorf("invalid transaction type")
 	}
+
+	registerTransaction(id, amount, transactionType)
 	return err
+}
+
+func registerTransaction(id string, amount int, transactionType string) error {
+	newTransaction := models.Transaction{
+		AccountID:       parseUint(id),
+		Amount:          amount,
+		TransactionType: transactionType,
+		Description:     "New Transaction",
+		Date:            time.Now(),
+	}
+
+	result := db.Gorm.Create(&newTransaction)
+	if result.Error != nil {
+		log.Fatal("failed to create transaction", result.Error)
+		return result.Error
+	}
+
+	fmt.Println("New transaction created with ID:", newTransaction.ID)
+	return nil
+}
+
+func parseUint(str string) uint {
+	uintValue, err := strconv.ParseUint(str, 10, 32)
+	if err != nil {
+		log.Fatalf("Failed to parse uint: %v", err)
+	}
+	return uint(uintValue)
 }
