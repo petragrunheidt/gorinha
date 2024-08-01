@@ -50,7 +50,7 @@ func getLast10Extracts(id string) ([]TransactionRecord, error) {
 	var transactions []models.Transaction
 	var transactionRecords []TransactionRecord
 
-	err := db.Gorm.Where("account_id = ?", id).
+	err := db.DB.Where("account_id = ?", id).
 		Order("id DESC").
 		Limit(10).
 		Find(&transactions).

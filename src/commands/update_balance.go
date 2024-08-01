@@ -12,22 +12,22 @@ import (
 	"gorm.io/gorm"
 )
 
-func UpdateBalance(id string, amount int, transactionType string) error {
+func UpdateBalance(id string, amount float64, transactionType string) error {
 	var err error
 
 	switch transactionType {
 	case "c":
-		err = db.Gorm.
-		Model(&models.Account{}).
-		Where("id = ?", id).
-		Update("limit_amount", gorm.Expr("limit_amount - ?", amount)).
-		Error
+		err = db.DB.
+			Model(&models.Account{}).
+			Where("id = ?", id).
+			Update("limit_amount", gorm.Expr("limit_amount - ?", amount)).
+			Error
 	case "d":
-		err = db.Gorm.
-		Model(&models.Balance{}).
-		Where("account_id = ?", id).
-		Update("amount", gorm.Expr("amount - ?", amount)).
-		Error
+		err = db.DB.
+			Model(&models.Balance{}).
+			Where("account_id = ?", id).
+			Update("amount", gorm.Expr("amount - ?", amount)).
+			Error
 	default:
 		return fmt.Errorf("invalid transaction type")
 	}
@@ -36,7 +36,7 @@ func UpdateBalance(id string, amount int, transactionType string) error {
 	return err
 }
 
-func registerTransaction(id string, amount int, transactionType string) error {
+func registerTransaction(id string, amount float64, transactionType string) error {
 	newTransaction := models.Transaction{
 		AccountID:       parseUint(id),
 		Amount:          amount,
@@ -45,7 +45,7 @@ func registerTransaction(id string, amount int, transactionType string) error {
 		Date:            time.Now(),
 	}
 
-	result := db.Gorm.Create(&newTransaction)
+	result := db.DB.Create(&newTransaction)
 	if result.Error != nil {
 		log.Fatal("failed to create transaction", result.Error)
 		return result.Error

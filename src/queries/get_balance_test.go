@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"gorinha/src/db"
-	"gorinha/src/models"
 	"gorinha/src/helpers"
+	"gorinha/src/models"
 )
 
 func TestGetBalance(t *testing.T) {
@@ -31,7 +31,7 @@ func TestGetBalance(t *testing.T) {
 
 func createAccount() {
 	account := models.Account{Name: "test account", LimitAmount: 1000}
-	db.Gorm.Create(&account)
+	db.DB.Create(&account)
 	balance := models.Balance{AccountID: account.ID, Amount: 500}
-	db.Gorm.Create(&balance)
+	db.DB.Create(&balance)
 }

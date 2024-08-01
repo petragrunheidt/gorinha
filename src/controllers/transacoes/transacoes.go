@@ -9,7 +9,7 @@ import (
 )
 
 type TransactionPayload struct {
-	Value       int    `json:"valor"`
+	Value       float64    `json:"valor"`
 	Type        string `json:"tipo"`
 	Description string `json:"descricao"`
 }

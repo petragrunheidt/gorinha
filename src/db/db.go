@@ -15,44 +15,44 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-var Gorm *gorm.DB
+var DB *gorm.DB
 
 func Init() {
 	_, currentFile, _, ok := runtime.Caller(0)
 	if !ok {
-			log.Fatalf("error determining current file path")
+		log.Fatalf("error determining current file path")
 	}
 
 	configPath := filepath.Join(filepath.Dir(currentFile), "./config.yml")
 
 	config, err := LoadConfig(configPath)
 	if err != nil {
-			log.Fatalf("Error loading config file: %v", err)
+		log.Fatalf("Error loading config file: %v", err)
 	}
 
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable",
-			config.Host, config.User, config.Password, config.Name, config.Port)
+		config.Host, config.User, config.Password, config.Name, config.Port)
 
-	Gorm, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
+	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {
-			log.Fatalf("Unable to connect to database: %v\n", err)
+		log.Fatalf("Unable to connect to database: %v\n", err)
 	}
 
 	fmt.Println("Database connection initialized")
-	
+
 	runSeeds()
 }
 
 func runSeeds() {
 	isLeader := os.Getenv("LEADER") == "true"
 	isDebug := gin.Mode() == "debug"
-	
+
 	if isLeader && isDebug {
 		Drop()
 		Migrate()
-		if err := seedData(Gorm); err != nil {
+		if err := seedData(DB); err != nil {
 			fmt.Printf("Error seeding data: %v\n", err)
 		} else {
 			fmt.Println("Development database populated")
@@ -61,16 +61,16 @@ func runSeeds() {
 }
 
 func Close() {
-	sqlDB, err := Gorm.DB()
+	sqlDB, err := DB.DB()
 	if err != nil {
-			log.Fatalf("Error getting SQL DB: %v", err)
+		log.Fatalf("Error getting SQL DB: %v", err)
 	}
 	sqlDB.Close()
 	fmt.Println("Database connection closed")
 }
 
 func Migrate() {
-	err := Gorm.AutoMigrate(
+	err := DB.AutoMigrate(
 		&models.Account{},
 		&models.Balance{},
 		&models.Transaction{},
@@ -85,11 +85,11 @@ func Migrate() {
 func Drop() {
 	// Get all table names
 	var tables []string
-	Gorm.Raw("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'").Scan(&tables)
+	DB.Raw("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'").Scan(&tables)
 
 	// Drop each table
 	for _, table := range tables {
-		Gorm.Migrator().DropTable(table)
+		DB.Migrator().DropTable(table)
 	}
 }
 

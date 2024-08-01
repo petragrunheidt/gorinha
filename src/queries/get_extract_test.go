@@ -32,16 +32,16 @@ func TestGetExtract(t *testing.T) {
 
 	expectedTransactions := []TransactionRecord{
 		{
-			Amount:     500,
-			Type:       "d",
+			Amount:      500,
+			Type:        "d",
 			Description: "descricao",
-			Timestamp:  time.Now(),
+			Timestamp:   time.Now(),
 		},
 		{
-			Amount:     50,
-			Type:       "c",
+			Amount:      50,
+			Type:        "c",
 			Description: "descricao",
-			Timestamp:  time.Now(),
+			Timestamp:   time.Now(),
 		},
 	}
 
@@ -67,9 +67,9 @@ func TestGetExtract(t *testing.T) {
 
 func createTestAccountAndTransactions() {
 	account := models.Account{Name: "test account", LimitAmount: 1000}
-	db.Gorm.Create(&account)
+	db.DB.Create(&account)
 	balance := models.Balance{AccountID: account.ID, Amount: 500}
-	db.Gorm.Create(&balance)
+	db.DB.Create(&balance)
 
 	transactions := []models.Transaction{
 		{AccountID: account.ID, Amount: 50, TransactionType: "c", Description: "descricao", Date: time.Now()},
@@ -77,6 +77,6 @@ func createTestAccountAndTransactions() {
 	}
 
 	for _, transaction := range transactions {
-		db.Gorm.Create(&transaction)
+		db.DB.Create(&transaction)
 	}
 }

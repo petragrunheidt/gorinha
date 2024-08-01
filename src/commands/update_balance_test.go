@@ -53,9 +53,9 @@ func prepareDb() {
 
 func createAccount() {
 	account := models.Account{Name: "test account", LimitAmount: 1000}
-	db.Gorm.Create(&account)
+	db.DB.Create(&account)
 	balance := models.Balance{AccountID: account.ID, Amount: 500}
-	db.Gorm.Create(&balance)
+	db.DB.Create(&balance)
 }
 
 func assertBalance(
@@ -78,7 +78,7 @@ func assertBalance(
 
 func assertTransactionCreated(t *testing.T, accountId string, amount int, transactionType string) {
 	var transaction models.Transaction
-	if err := db.Gorm.Where("account_id = ? AND amount = ? AND transaction_type = ?", accountId, amount, transactionType).First(&transaction).Error; err != nil {
+	if err := db.DB.Where("account_id = ? AND amount = ? AND transaction_type = ?", accountId, amount, transactionType).First(&transaction).Error; err != nil {
 		t.Fatalf("Failed to find transaction: %v", err)
 	}
 
