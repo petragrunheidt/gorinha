@@ -14,6 +14,36 @@ import (
 
 func UpdateBalance(id string, amount float64, transactionType string) error {
 	var err error
+	tx := db.DB.Begin()
+
+	defer func() {
+		if r:= recover(); r!= nil {
+			tx.Rollback()
+			panic(r)
+		}
+	}()
+
+	err = updateTransaction(id, amount, transactionType)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("transaction failed: %w", err)
+	}
+
+	err = registerTransaction(id, amount, transactionType)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("transaction failed: %w", err)
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	return err
+}
+
+func updateTransaction(id string, amount float64, transactionType string) error {
+	var err error
 
 	switch transactionType {
 	case "c":
@@ -32,8 +62,10 @@ func UpdateBalance(id string, amount float64, transactionType string) error {
 		return fmt.Errorf("invalid transaction type")
 	}
 
-	registerTransaction(id, amount, transactionType)
-	return err
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func registerTransaction(id string, amount float64, transactionType string) error {

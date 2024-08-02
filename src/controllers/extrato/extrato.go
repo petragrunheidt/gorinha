@@ -20,11 +20,9 @@ func HandleExtract(c *gin.Context) {
 	extract, err := queries.GetExtract(id)
 	if err != nil {
 		fmt.Printf("Failed to get extract for ID %s: %v", id, err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve extract"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Failed to retrieve extract"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"data": extract,
-	})
+	c.JSON(http.StatusOK, extract)
 }

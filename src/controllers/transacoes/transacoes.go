@@ -19,20 +19,18 @@ func HandleTransaction(c *gin.Context) {
 
 	var payload TransactionPayload
 	if err := c.ShouldBindJSON(&payload); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 
 	if err := commands.UpdateBalance(id, payload.Value, payload.Type); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 
 	balances, _ := queries.GetBalance(id)
 
-	c.JSON(http.StatusOK, gin.H{
-		"data": balances,
-	})
+	c.JSON(http.StatusOK, balances)
 }
 
 // curl -X POST -H "Content-Type: application/json" -d '{ "valor": 100, "tipo": "c", "descricao": "descricao" }' localhost:9999/clientes/1/transacoes

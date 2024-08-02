@@ -5,8 +5,6 @@ services:
     # build: .
     image: golang:latest
     container_name: api1
-    environment:
-      - LEADER=true
     volumes:
       - .:/usr/src/gorinha
       - /go/pkg/mod:/go/pkg/mod
@@ -24,6 +22,8 @@ services:
 
   api2: 
     <<: *api
+    environment:
+      - LEADER=true
     ports:
       - 8082:8080
     container_name: api2
