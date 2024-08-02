@@ -12,7 +12,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func UpdateBalance(id string, amount float64, transactionType string) error {
+func UpdateBalance(id string, amount float64, transactionType string, description string) error {
 	var err error
 	tx := db.DB.Begin()
 
@@ -29,7 +29,7 @@ func UpdateBalance(id string, amount float64, transactionType string) error {
 		return fmt.Errorf("transaction failed: %w", err)
 	}
 
-	err = registerTransaction(id, amount, transactionType)
+	err = registerTransaction(id, amount, transactionType, description)
 	if err != nil {
 		tx.Rollback()
 		return fmt.Errorf("transaction failed: %w", err)
@@ -68,12 +68,12 @@ func updateTransaction(id string, amount float64, transactionType string) error 
 	return nil
 }
 
-func registerTransaction(id string, amount float64, transactionType string) error {
+func registerTransaction(id string, amount float64, transactionType string, description string) error {
 	newTransaction := models.Transaction{
 		AccountID:       parseUint(id),
 		Amount:          amount,
 		TransactionType: transactionType,
-		Description:     "New Transaction",
+		Description:     description,
 		Date:            time.Now(),
 	}
 

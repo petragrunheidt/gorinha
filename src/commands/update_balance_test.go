@@ -18,7 +18,7 @@ func TestUpdateBalance(t *testing.T) {
 		// assert initial balance
 		assertBalance(t, 1000.0, 500.0)
 
-		err := UpdateBalance("1", 500, "c")
+		err := UpdateBalance("1", 500, "c", "description")
 		if err != nil {
 			t.Fatalf("Failed to update balance: %v", err)
 		}
@@ -26,7 +26,7 @@ func TestUpdateBalance(t *testing.T) {
 		// assert updated balance
 		assertBalance(t, 500.0, 500.0)
 		// assert that the transaction was created
-		assertTransactionCreated(t, "1", 500, "c")
+		assertTransactionCreated(t, "1", 500, "c", "description")
 	})
 	t.Run("Debit", func(t *testing.T) {
 		prepareDb()
@@ -34,7 +34,7 @@ func TestUpdateBalance(t *testing.T) {
 		// assert initial balance
 		assertBalance(t, 1000.0, 500.0)
 
-		err := UpdateBalance("1", 500, "d")
+		err := UpdateBalance("1", 500, "d", "description")
 		if err != nil {
 			t.Fatalf("Failed to update balance: %v", err)
 		}
@@ -42,7 +42,7 @@ func TestUpdateBalance(t *testing.T) {
 		// assert updated balance
 		assertBalance(t, 1000.0, 0)
 		// assert that the transaction was created
-		assertTransactionCreated(t, "1", 500, "d")
+		assertTransactionCreated(t, "1", 500, "d", "description")
 	})
 }
 
@@ -76,7 +76,7 @@ func assertBalance(
 	}
 }
 
-func assertTransactionCreated(t *testing.T, accountId string, amount int, transactionType string) {
+func assertTransactionCreated(t *testing.T, accountId string, amount float64, transactionType string, description string) {
 	var transaction models.Transaction
 	if err := db.DB.Where("account_id = ? AND amount = ? AND transaction_type = ?", accountId, amount, transactionType).First(&transaction).Error; err != nil {
 		t.Fatalf("Failed to find transaction: %v", err)
@@ -91,8 +91,8 @@ func assertTransactionCreated(t *testing.T, accountId string, amount int, transa
 	if transaction.TransactionType != transactionType {
 		t.Errorf("Expected TransactionType to be %v, got %v", transactionType, transaction.TransactionType)
 	}
-	if transaction.Description != "New Transaction" {
-		t.Errorf("Expected Description to be 'New Transaction', got %v", transaction.Description)
+	if transaction.Description != description {
+		t.Errorf("Expected Description to be %v, got %v", description, transaction.Description)
 	}
 	if time.Since(transaction.Date) > time.Minute {
 		t.Errorf("Transaction Date is not recent")

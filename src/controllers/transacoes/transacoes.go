@@ -23,7 +23,7 @@ func HandleTransaction(c *gin.Context) {
 		return
 	}
 
-	if err := commands.UpdateBalance(id, payload.Value, payload.Type); err != nil {
+	if err := commands.UpdateBalance(id, payload.Value, payload.Type, payload.Description); err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
