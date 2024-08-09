@@ -46,15 +46,19 @@ func updateTransaction(tx *gorm.DB, id string, amount float64, transactionType s
 
 	switch transactionType {
 	case "c":
-		err = tx.Model(&models.Account{}).
-			Where("id = ?", id).
-			Update("limit_amount", gorm.Expr("limit_amount - ?", amount)).
-			Error
+		var account models.Account
+		if err := tx.First(&account, id).Error; err != nil {
+			return err
+		}
+		account.LimitAmount -= amount
+		err = tx.Save(&account).Error
 	case "d":
-		err = tx.Model(&models.Balance{}).
-			Where("account_id = ?", id).
-			Update("amount", gorm.Expr("amount - ?", amount)).
-			Error
+		var balance models.Balance
+		if err := tx.Where("account_id = ?", id).First(&balance).Error; err != nil {
+			return err
+		}
+		balance.Amount -= amount
+		err = tx.Save(&balance).Error
 	default:
 		return fmt.Errorf("invalid transaction type")
 	}

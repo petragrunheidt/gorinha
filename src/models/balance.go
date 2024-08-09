@@ -15,7 +15,7 @@ type Balance struct {
 
 func (b *Balance) BeforeSave(tx *gorm.DB) (err error) {
 	var account Account
-	if err := tx.First(&account, b.AccountID).Error; err != nil {
+	if err := tx.First(&account, "id = ?", b.AccountID).Error; err != nil {
 		return err
 	}
 
