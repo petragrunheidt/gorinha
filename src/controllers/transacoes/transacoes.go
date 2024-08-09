@@ -2,6 +2,7 @@ package transacoes
 
 import (
 	"gorinha/src/commands"
+	"gorinha/src/controllers/commom"
 	"gorinha/src/queries"
 	"net/http"
 
@@ -19,12 +20,12 @@ func HandleTransaction(c *gin.Context) {
 
 	var payload TransactionPayload
 	if err := c.ShouldBindJSON(&payload); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		commom.HandleDbHttpErrors(c, "Failed to update balance", err)
 		return
 	}
 
 	if err := commands.UpdateBalance(id, payload.Value, payload.Type, payload.Description); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		commom.HandleDbHttpErrors(c, "Failed to update balance", err)
 		return
 	}
 

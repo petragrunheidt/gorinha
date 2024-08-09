@@ -1,7 +1,7 @@
 package extrato
 
 import (
-	"fmt"
+	"gorinha/src/controllers/commom"
 	"gorinha/src/queries"
 	"net/http"
 
@@ -19,8 +19,7 @@ func HandleExtract(c *gin.Context) {
 
 	extract, err := queries.GetExtract(id)
 	if err != nil {
-		fmt.Printf("Failed to get extract for ID %s: %v", id, err)
-		c.JSON(http.StatusNotFound, gin.H{"error": "Failed to retrieve extract"})
+		commom.HandleDbHttpErrors(c, "Failed to retrieve extract", err)
 		return
 	}
 
