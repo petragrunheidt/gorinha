@@ -18,7 +18,7 @@ func TestUpdateBalance(t *testing.T) {
 		// assert initial balance
 		assertBalance(t, 1000.0, 500.0)
 
-		err := UpdateBalance("1", 500, "c", "description")
+		err := UpdateBalance("1", 500, "c", "descript")
 		if err != nil {
 			t.Fatalf("Failed to update balance: %v", err)
 		}
@@ -26,7 +26,7 @@ func TestUpdateBalance(t *testing.T) {
 		// assert updated balance
 		assertBalance(t, 500.0, 500.0)
 		// assert that the transaction was created
-		assertTransactionCreated(t, "1", 500, "c", "description")
+		assertTransactionCreated(t, "1", 500, "c", "descript")
 	})
 	t.Run("Debit", func(t *testing.T) {
 		prepareDb()
@@ -34,7 +34,7 @@ func TestUpdateBalance(t *testing.T) {
 		// assert initial balance
 		assertBalance(t, 1000.0, 500.0)
 
-		err := UpdateBalance("1", 500, "d", "description")
+		err := UpdateBalance("1", 500, "d", "descript")
 		if err != nil {
 			t.Fatalf("Failed to update balance: %v", err)
 		}
@@ -42,7 +42,7 @@ func TestUpdateBalance(t *testing.T) {
 		// assert updated balance
 		assertBalance(t, 1000.0, 0)
 		// assert that the transaction was created
-		assertTransactionCreated(t, "1", 500, "d", "description")
+		assertTransactionCreated(t, "1", 500, "d", "descript")
 	})
 }
 

@@ -13,23 +13,22 @@ import (
 )
 
 func UpdateBalance(id string, amount float64, transactionType string, description string) error {
-	var err error
 	tx := db.DB.Begin()
 
 	defer func() {
-		if r:= recover(); r!= nil {
+		if r := recover(); r != nil {
 			tx.Rollback()
 			panic(r)
 		}
 	}()
 
-	err = updateTransaction(id, amount, transactionType)
+	err := updateTransaction(tx, id, amount, transactionType)
 	if err != nil {
 		tx.Rollback()
 		return fmt.Errorf("transaction failed: %w", err)
 	}
 
-	err = registerTransaction(id, amount, transactionType, description)
+	err = registerTransaction(tx, id, amount, transactionType, description)
 	if err != nil {
 		tx.Rollback()
 		return fmt.Errorf("transaction failed: %w", err)
@@ -39,22 +38,20 @@ func UpdateBalance(id string, amount float64, transactionType string, descriptio
 		return fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
-	return err
+	return nil
 }
 
-func updateTransaction(id string, amount float64, transactionType string) error {
+func updateTransaction(tx *gorm.DB, id string, amount float64, transactionType string) error {
 	var err error
 
 	switch transactionType {
 	case "c":
-		err = db.DB.
-			Model(&models.Account{}).
+		err = tx.Model(&models.Account{}).
 			Where("id = ?", id).
 			Update("limit_amount", gorm.Expr("limit_amount - ?", amount)).
 			Error
 	case "d":
-		err = db.DB.
-			Model(&models.Balance{}).
+		err = tx.Model(&models.Balance{}).
 			Where("account_id = ?", id).
 			Update("amount", gorm.Expr("amount - ?", amount)).
 			Error
@@ -62,13 +59,10 @@ func updateTransaction(id string, amount float64, transactionType string) error 
 		return fmt.Errorf("invalid transaction type")
 	}
 
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
-func registerTransaction(id string, amount float64, transactionType string, description string) error {
+func registerTransaction(tx *gorm.DB, id string, amount float64, transactionType string, description string) error {
 	newTransaction := models.Transaction{
 		AccountID:       parseUint(id),
 		Amount:          amount,
@@ -77,7 +71,7 @@ func registerTransaction(id string, amount float64, transactionType string, desc
 		Date:            time.Now(),
 	}
 
-	result := db.DB.Create(&newTransaction)
+	result := tx.Create(&newTransaction)
 	if result.Error != nil {
 		log.Fatal("failed to create transaction", result.Error)
 		return result.Error
