@@ -22,7 +22,8 @@ func UpdateBalance(id string, amount float64, transactionType string, descriptio
 		}
 	}()
 
-	err := updateTransaction(tx, id, amount, transactionType)
+	var err error
+	err = updateTransaction(tx, id, amount, transactionType)
 	if err != nil {
 		tx.Rollback()
 		return fmt.Errorf("transaction failed: %w", err)
@@ -77,7 +78,6 @@ func registerTransaction(tx *gorm.DB, id string, amount float64, transactionType
 
 	result := tx.Create(&newTransaction)
 	if result.Error != nil {
-		log.Fatal("failed to create transaction", result.Error)
 		return result.Error
 	}
 
