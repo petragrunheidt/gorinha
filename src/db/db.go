@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"time"
 
 	"gorinha/src/models"
 
@@ -43,6 +44,18 @@ func Init() {
 	fmt.Println("Database connection initialized")
 
 	runSeeds()
+	configSQLDriver()
+}
+
+func configSQLDriver() {
+	configSQLDriver, err := DB.DB()
+	if err != nil {
+			log.Fatal(err)
+	}
+	configSQLDriver.SetMaxIdleConns(10)
+	configSQLDriver.SetMaxOpenConns(20)
+	configSQLDriver.SetConnMaxIdleTime(15 * time.Minute)
+	configSQLDriver.SetConnMaxLifetime(30 * time.Minute)
 }
 
 func runSeeds() {
