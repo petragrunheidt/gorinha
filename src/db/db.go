@@ -35,6 +35,7 @@ func Init() {
 		config.Host, config.User, config.Password, config.Name, config.Port)
 
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
+		SkipDefaultTransaction: true,
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {
