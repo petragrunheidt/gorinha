@@ -60,8 +60,8 @@ func createAccount() {
 
 func assertBalance(
 	t *testing.T,
-	expectedLimitAmount float64,
-	expectedAmount float64,
+	expectedLimitAmount int,
+	expectedAmount int,
 ) {
 	balance, err := queries.GetBalance("1")
 	if err != nil {
@@ -69,14 +69,14 @@ func assertBalance(
 	}
 
 	if balance.LimitAmount != expectedLimitAmount {
-		t.Errorf("Expected LimitAmount to be %.2f, got %.2f", expectedLimitAmount, balance.LimitAmount)
+		t.Errorf("Expected LimitAmount to be %d, got %d", expectedLimitAmount, balance.LimitAmount)
 	}
 	if balance.Amount != expectedAmount {
-		t.Errorf("Expected Amount to be %.2f, got %.2f", expectedAmount, balance.Amount)
+		t.Errorf("Expected Amount to be %d, got %d", expectedAmount, balance.Amount)
 	}
 }
 
-func assertTransactionCreated(t *testing.T, accountId string, amount float64, transactionType string, description string) {
+func assertTransactionCreated(t *testing.T, accountId string, amount int, transactionType string, description string) {
 	var transaction models.Transaction
 	if err := db.DB.Where("account_id = ? AND amount = ? AND transaction_type = ?", accountId, amount, transactionType).First(&transaction).Error; err != nil {
 		t.Fatalf("Failed to find transaction: %v", err)

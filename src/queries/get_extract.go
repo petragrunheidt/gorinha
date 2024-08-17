@@ -14,13 +14,13 @@ type Extract struct {
 }
 
 type ExtractBalance struct {
-	Amount      float64   `json:"total"`
+	Amount      int       `json:"total"`
 	Date        time.Time `json:"data_extrato"`
-	LimitAmount float64   `json:"limite"`
+	LimitAmount int       `json:"limite"`
 }
 
 type TransactionRecord struct {
-	Amount      float64   `json:"valor"`
+	Amount      int       `json:"valor"`
 	Type        string    `json:"tipo"`
 	Description string    `json:"descricao"`
 	Timestamp   time.Time `json:"realizada_em"`

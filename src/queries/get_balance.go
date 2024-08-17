@@ -9,8 +9,8 @@ import (
 )
 
 type Balance struct {
-	LimitAmount float64 `json:"limite"`
-	Amount      float64 `json:"saldo"`
+	LimitAmount int `json:"limite"`
+	Amount      int `json:"saldo"`
 }
 
 func GetBalance(id string) (Balance, error) {

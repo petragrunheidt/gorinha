@@ -10,7 +10,7 @@ import (
 type Balance struct {
 	gorm.Model
 	AccountID uint
-	Amount    float64 `gorm:"not null;"`
+	Amount    int `gorm:"not null;"`
 }
 
 func (b *Balance) BeforeSave(tx *gorm.DB) (err error) {
@@ -19,7 +19,7 @@ func (b *Balance) BeforeSave(tx *gorm.DB) (err error) {
 		return err
 	}
 
-	if b.Amount < 0 && math.Abs(b.Amount) > account.LimitAmount {
+	if b.Amount < 0 && math.Abs(float64(b.Amount)) > float64(account.LimitAmount) {
 		return errors.New("balance amount exceeds the account's limit amount")
 	}
 

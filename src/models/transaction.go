@@ -10,13 +10,13 @@ import (
 type Transaction struct {
 	gorm.Model
 	AccountID       uint
-	Amount          float64 `gorm:"not null"`
+	Amount          int    `gorm:"not null"`
 	TransactionType string `gorm:"not null"`
 	Description     string `gorm:"not null"`
 	Date            time.Time
 }
 
-func(t *Transaction) BeforeSave(tx *gorm.DB) (err error) {
+func (t *Transaction) BeforeSave(tx *gorm.DB) (err error) {
 	if len(t.Description) > 10 || len(t.Description) < 1 {
 		return errors.New("description must have between 1 and 10 characters")
 	}
